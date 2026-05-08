@@ -1,0 +1,28 @@
+[package]
+name = "vigyl"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "VIGYL keeper network primitives -- jobs, triggers, keeper rotation, execution proofs"
+repository = "https://github.com/vigylsignal/vigyl"
+readme = "README.md"
+authors = ["vigylsignal"]
+keywords = ["solana", "keeper", "automation", "cron", "pyth"]
+categories = ["cryptography::cryptocurrencies"]
+
+[lib]
+name = "vigyl"
+path = "src/lib.rs"
+
+[dependencies]
+sha2 = "0.10"
+thiserror = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+proptest = "1"
+
+[workspace]
+members = ["programs/vigyl"]
+resolver = "2"
