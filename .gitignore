@@ -1,0 +1,14 @@
+target/
+Cargo.lock
+node_modules/
+dist/
+.next/
+*.log
+.DS_Store
+.env
+.env.*
+.idea/
+.vscode/
+main.py
+scripts/publish.sh
+scripts/generate-assets.py
