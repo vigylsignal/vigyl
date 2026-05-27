@@ -99,12 +99,14 @@ mod tests {
 
     #[test]
     fn epoch_fires_on_boundary_once() {
-        let t = SlotEpochTrigger {
+        let mut t = SlotEpochTrigger {
             granularity: SlotEpochGranularity::Epoch,
             period_slots: 0,
             last_fired_slot: 431_999,
         };
         assert!(t.should_fire(432_000, 1, 432_000));
+        // once the keeper records the fire, the same epoch must not fire again
+        t.last_fired_slot = 432_000;
         assert!(!t.should_fire(432_100, 1, 432_000));
     }
 
