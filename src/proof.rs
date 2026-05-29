@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_big_array::BigArray;
 
 use crate::{Result, VigylError};
 
@@ -12,6 +13,7 @@ pub struct ExecutionProof {
     pub submitted_at_slot: u64,
     pub latency_slots: u32,
     pub priority_fee_used: u64,
+    #[serde(with = "BigArray")]
     pub tx_signature: [u8; 64],
     pub success: bool,
 }
