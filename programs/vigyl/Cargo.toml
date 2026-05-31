@@ -1,0 +1,22 @@
+[package]
+name = "vigyl-program"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Anchor 0.31 mirror of the VIGYL keeper network state and instructions"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "vigyl_program"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "0.31.0", features = ["init-if-needed"] }
+anchor-spl = { version = "0.31.0", features = ["token", "associated_token"] }
