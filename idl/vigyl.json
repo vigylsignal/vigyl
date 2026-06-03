@@ -1,0 +1,146 @@
+{
+  "address": "V1gy1KpR1RJt1n1eN3tw1RkPr1grM11111111111111",
+  "metadata": {
+    "name": "vigyl",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "VIGYL keeper network on-chain state and instructions"
+  },
+  "instructions": [
+    { "name": "initialize_config", "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "config", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [99,111,110,102,105,103] }] } },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ], "args": [{ "name": "params", "type": { "defined": { "name": "ConfigParams" } } }],
+      "discriminator": [46, 4, 92, 149, 224, 190, 71, 200]
+    },
+    { "name": "initialize_registry", "accounts": [
+        { "name": "authority", "writable": true, "signer": true },
+        { "name": "registry", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [114,101,103,105,115,116,114,121] }] } },
+        { "name": "system_program", "address": "11111111111111111111111111111111" }
+      ], "args": [],
+      "discriminator": [30, 202, 145, 156, 165, 62, 12, 68]
+    },
+    { "name": "register_job", "accounts": [
+        { "name": "owner", "writable": true, "signer": true },
+        { "name": "config" },
+        { "name": "registry", "writable": true },
+        { "name": "job", "writable": true }
+      ], "args": [
+        { "name": "trigger_type", "type": "u8" },
+        { "name": "trigger_data", "type": { "array": ["u8", 128] } },
+        { "name": "target_program", "type": "pubkey" },
+        { "name": "target_ix_data", "type": { "array": ["u8", 512] } },
+        { "name": "target_accounts_hash", "type": { "array": ["u8", 32] } },
+        { "name": "budget_lamports", "type": "u64" },
+        { "name": "max_priority_fee_micro_lamports", "type": "u64" }
+      ],
+      "discriminator": [193, 91, 44, 51, 30, 133, 240, 168]
+    },
+    { "name": "fund_job", "accounts": [
+        { "name": "owner", "writable": true, "signer": true },
+        { "name": "job", "writable": true }
+      ], "args": [{ "name": "additional_lamports", "type": "u64" }],
+      "discriminator": [8, 68, 244, 141, 227, 5, 145, 219]
+    },
+    { "name": "pause_job", "accounts": [
+        { "name": "owner", "signer": true },
+        { "name": "job", "writable": true }
+      ], "args": [],
+      "discriminator": [70, 40, 187, 145, 236, 190, 3, 24]
+    },
+    { "name": "resume_job", "accounts": [
+        { "name": "owner", "signer": true },
+        { "name": "job", "writable": true }
+      ], "args": [],
+      "discriminator": [220, 20, 194, 149, 34, 97, 197, 66]
+    },
+    { "name": "cancel_job", "accounts": [
+        { "name": "owner", "writable": true, "signer": true },
+        { "name": "job", "writable": true }
+      ], "args": [],
+      "discriminator": [232, 219, 223, 41, 219, 236, 220, 190]
+    },
+    { "name": "bond_keeper", "accounts": [
+        { "name": "keeper", "writable": true, "signer": true },
+        { "name": "keeper_bond", "writable": true }
+      ], "args": [{ "name": "amount", "type": "u64" }],
+      "discriminator": [156, 68, 32, 43, 122, 244, 231, 62]
+    },
+    { "name": "request_unbond", "accounts": [
+        { "name": "keeper", "signer": true },
+        { "name": "keeper_bond", "writable": true }
+      ], "args": [],
+      "discriminator": [45, 3, 200, 199, 92, 205, 43, 118]
+    },
+    { "name": "withdraw_unbond", "accounts": [
+        { "name": "keeper", "writable": true, "signer": true },
+        { "name": "keeper_bond", "writable": true }
+      ], "args": [],
+      "discriminator": [64, 176, 173, 90, 68, 218, 22, 232]
+    },
+    { "name": "claim_execution", "accounts": [
+        { "name": "keeper", "signer": true },
+        { "name": "job", "writable": true },
+        { "name": "keeper_bond", "writable": true }
+      ], "args": [{ "name": "expected_run_slot", "type": "u64" }],
+      "discriminator": [193, 55, 62, 145, 128, 245, 116, 47]
+    },
+    { "name": "submit_proof", "accounts": [
+        { "name": "keeper", "writable": true, "signer": true },
+        { "name": "job", "writable": true },
+        { "name": "keeper_bond", "writable": true },
+        { "name": "proof", "writable": true }
+      ], "args": [
+        { "name": "execution_index", "type": "u64" },
+        { "name": "tx_signature", "type": { "array": ["u8", 64] } },
+        { "name": "success", "type": "bool" },
+        { "name": "priority_fee_used", "type": "u64" }
+      ],
+      "discriminator": [64, 194, 45, 26, 216, 33, 90, 175]
+    },
+    { "name": "slash_keeper", "accounts": [
+        { "name": "caller", "writable": true, "signer": true },
+        { "name": "job", "writable": true },
+        { "name": "keeper_bond", "writable": true },
+        { "name": "config" }
+      ], "args": [],
+      "discriminator": [95, 149, 74, 116, 175, 39, 32, 12]
+    }
+  ],
+  "accounts": [
+    { "name": "Config", "discriminator": [155, 12, 170, 224, 30, 250, 204, 130] },
+    { "name": "JobRegistry", "discriminator": [59, 100, 46, 231, 118, 21, 209, 83] },
+    { "name": "Job", "discriminator": [75, 124, 80, 74, 175, 79, 40, 55] },
+    { "name": "KeeperBond", "discriminator": [116, 175, 202, 20, 129, 89, 187, 41] },
+    { "name": "ExecutionProof", "discriminator": [136, 216, 154, 82, 200, 43, 210, 47] }
+  ],
+  "errors": [
+    { "code": 6000, "name": "Overflow", "msg": "integer overflow" },
+    { "code": 6001, "name": "Underflow", "msg": "integer underflow" },
+    { "code": 6002, "name": "Unauthorized", "msg": "unauthorized" },
+    { "code": 6003, "name": "JobPaused", "msg": "job is paused" },
+    { "code": 6004, "name": "JobBudgetInsufficient", "msg": "job has insufficient budget" },
+    { "code": 6005, "name": "JobNotDue", "msg": "job not due yet" },
+    { "code": 6006, "name": "KeeperUnderBonded", "msg": "keeper is below the minimum bond" },
+    { "code": 6007, "name": "KeeperHasActiveJobs", "msg": "keeper still has active jobs" },
+    { "code": 6008, "name": "UnbondNotReady", "msg": "unbond delay not reached" },
+    { "code": 6009, "name": "AlreadyAssigned", "msg": "job is already assigned" },
+    { "code": 6010, "name": "NotAssignedKeeper", "msg": "signer is not the assigned keeper" },
+    { "code": 6011, "name": "InvalidTriggerType", "msg": "invalid trigger type" },
+    { "code": 6012, "name": "InvalidTriggerData", "msg": "invalid trigger data" },
+    { "code": 6013, "name": "PriorityFeeExceedsCap", "msg": "priority fee exceeds job cap" },
+    { "code": 6014, "name": "SlashNotEligible", "msg": "keeper is not slashable yet" }
+  ],
+  "types": [
+    { "name": "ConfigParams", "type": { "kind": "struct", "fields": [
+      { "name": "min_keeper_bond", "type": "u64" },
+      { "name": "execution_fee_bps", "type": "u16" },
+      { "name": "slash_burn_bps", "type": "u16" },
+      { "name": "slash_owner_bps", "type": "u16" },
+      { "name": "job_registration_fee", "type": "u64" },
+      { "name": "bond_unlock_seconds", "type": "i64" },
+      { "name": "execution_timeout_slots", "type": "u64" }
+    ]}}
+  ]
+}
