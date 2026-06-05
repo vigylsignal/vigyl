@@ -1,0 +1,35 @@
+{
+  "name": "@vigyl/sdk",
+  "version": "0.1.0",
+  "description": "VIGYL TypeScript SDK -- one-line job scheduling for Solana protocols",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "license": "Apache-2.0",
+  "author": "vigylsignal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vigylsignal/vigyl.git"
+  },
+  "keywords": ["solana", "keeper", "automation", "cron", "pyth"],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@solana/web3.js": "1.95.3",
+    "@coral-xyz/anchor": "0.31.0",
+    "bn.js": "5.2.1"
+  },
+  "devDependencies": {
+    "@types/bn.js": "5.1.5",
+    "@types/node": "20.14.11",
+    "typescript": "5.5.4",
+    "vitest": "2.0.5"
+  }
+}
