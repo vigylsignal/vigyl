@@ -1,8 +1,19 @@
-import type { Connection, PublicKey, Signer } from "@solana/web3.js";
+import {
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
+import type { Connection, Signer } from "@solana/web3.js";
 import { trigger } from "./trigger.js";
 import type { JobSpec, ScheduleResult } from "./types.js";
 import { configPda, jobPda, keeperBondPda, registryPda } from "./pda.js";
-import { encodeTrigger, padInstructionData } from "./encoding.js";
+import {
+  encodeRegisterJobData,
+  encodeTrigger,
+  hashTargetAccounts,
+  padInstructionData,
+} from "./encoding.js";
 
 export interface VigylClientOptions {
   connection: Connection;
@@ -63,17 +74,74 @@ export class Vigyl {
   }
 
   /**
-   * Submit a `register_job` transaction.
+   * Read the next global job index from the on-chain registry.
    *
-   * The Anchor client that lands the tx lives in the private deploy repo; this
-   * open-source client validates arguments and returns the derived pubkey so
-   * integrators can prepare accounts today and switch to a live client once
-   * `V1gy...` publishes.
+   * The registry account stores `total_jobs` as a little-endian u64 at offset 8
+   * (after the 8-byte Anchor discriminator). The program derives each Job PDA
+   * from `(owner, job_index)`, so the client reads the counter before deriving.
    */
-  async schedule(_spec: JobSpec): Promise<ScheduleResult> {
-    throw new Error(
-      "Vigyl.schedule() requires the mainnet deployment. Use previewSchedule() " +
-        "today; the client will ship in @vigyl/sdk once the program is live.",
-    );
+  async nextJobIndex(): Promise<bigint> {
+    const info = await this.connection.getAccountInfo(this.registryPda());
+    if (!info) {
+      throw new Error(
+        `registry account ${this.registryPda().toBase58()} not found on this ` +
+          "cluster -- the VIGYL program is not initialized here yet",
+      );
+    }
+    return info.data.readBigUInt64LE(8);
+  }
+
+  /**
+   * Build the `register_job` instruction for a spec at a known job index.
+   *
+   * Pure and synchronous: encodes the trigger, pads the target instruction data,
+   * hashes the account list, and assembles the account metas in IDL order.
+   */
+  buildRegisterJobIx(owner: PublicKey, jobIndex: bigint, spec: JobSpec): TransactionInstruction {
+    const { triggerType, triggerData } = encodeTrigger(spec.trigger);
+    const targetIxData = padInstructionData(spec.target.ixData);
+    const targetAccountsHash = hashTargetAccounts(spec.target.accounts);
+    const data = encodeRegisterJobData({
+      triggerType,
+      triggerData,
+      targetProgram: spec.target.program,
+      targetIxData,
+      targetAccountsHash,
+      budgetLamports: spec.budgetLamports,
+      maxPriorityFeeMicroLamports: spec.maxPriorityFeeMicroLamports,
+    });
+    return new TransactionInstruction({
+      programId: this.programId,
+      keys: [
+        { pubkey: owner, isSigner: true, isWritable: true },
+        { pubkey: this.configPda(), isSigner: false, isWritable: false },
+        { pubkey: this.registryPda(), isSigner: false, isWritable: true },
+        { pubkey: this.jobPda(owner, jobIndex), isSigner: false, isWritable: true },
+      ],
+      data: Buffer.from(data),
+    });
+  }
+
+  /**
+   * Register a job on-chain and wait for confirmation.
+   *
+   * Reads the next job index from the registry, builds the `register_job`
+   * instruction, signs with the wallet, and submits. The call reaches the live
+   * program on whichever cluster `connection` points at; against a cluster where
+   * the program is not initialized, `nextJobIndex()` throws before any fee is paid.
+   */
+  async schedule(spec: JobSpec): Promise<ScheduleResult> {
+    const owner = this.wallet.publicKey;
+    const jobIndex = await this.nextJobIndex();
+    const ix = this.buildRegisterJobIx(owner, jobIndex, spec);
+    const tx = new Transaction().add(ix);
+    const signature = await sendAndConfirmTransaction(this.connection, tx, [this.wallet], {
+      commitment: "confirmed",
+    });
+    return {
+      jobPubkey: this.jobPda(owner, jobIndex),
+      signature,
+      jobIndex,
+    };
   }
 }
