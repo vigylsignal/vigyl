@@ -143,7 +143,7 @@ const { jobPubkey } = await vigyl.schedule({
     ixData: buildHarvestIx(),
     accounts: myAccounts,
   },
-  budgetLamports: 0.05 * 1_000_000_000n,
+  budgetLamports: 50_000_000n,
   maxPriorityFeeMicroLamports: 5_000n,
 });
 ```
