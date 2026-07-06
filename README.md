@@ -10,6 +10,8 @@ A general-purpose keeper network for Solana. Job registry, four trigger standard
 
 <img src="assets/triggers.png" alt="four trigger standards" width="88%" />
 
+[![CI](https://img.shields.io/github/actions/workflow/status/vigylsignal/vigyl/ci.yml?branch=main&label=tests&style=flat-square&labelColor=0B1026&color=FF7A29)](https://github.com/vigylsignal/vigyl/actions/workflows/ci.yml)
+[![Last commit](https://img.shields.io/github/last-commit/vigylsignal/vigyl?style=flat-square&labelColor=0B1026&color=6E6A63)](https://github.com/vigylsignal/vigyl/commits/main)
 [![Site](https://img.shields.io/badge/site-vigyl.cloud-FF7A29?style=flat-square&labelColor=0B1026)](https://vigyl.cloud)
 [![Docs](https://img.shields.io/badge/docs-architecture-F5A623?style=flat-square&labelColor=0B1026)](docs/architecture.md)
 [![Job spec](https://img.shields.io/badge/spec-job--spec.md-C7CCD6?style=flat-square&labelColor=0B1026)](docs/job-spec.md)
@@ -20,6 +22,14 @@ A general-purpose keeper network for Solana. Job registry, four trigger standard
 [![Solana](https://img.shields.io/badge/solana-2.1-C7CCD6?style=flat-square&labelColor=0B1026)](https://solana.com)
 [![TypeScript](https://img.shields.io/badge/typescript-5.5-F5A623?style=flat-square&labelColor=0B1026)](https://www.typescriptlang.org)
 [![Node](https://img.shields.io/badge/node-20%2B-FF7A29?style=flat-square&labelColor=0B1026)](https://nodejs.org)
+
+<br />
+
+<img src="assets/badge-beacon.png" width="104" alt="solana keeper network" />
+<img src="assets/badge-triggers.png" width="104" alt="four trigger standards" />
+<img src="assets/badge-bond.png" width="104" alt="bonded execution" />
+<img src="assets/badge-proof.png" width="104" alt="on-chain execution proof" />
+<img src="assets/badge-cli.png" width="104" alt="vigyl-cli" />
 
 </div>
 
