@@ -4,6 +4,7 @@ import { Command } from "commander";
 import chalk from "chalk";
 
 const API_BASE = process.env.VIGYL_API ?? "https://vigyl.cloud/api";
+const DEVNET_PROGRAM_ID = "HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o";
 
 const orange = chalk.hex("#FF7A29");
 const amber = chalk.hex("#F5A623");
@@ -62,8 +63,45 @@ job
   .option("--ix-file <path>", "instruction data JSON")
   .option("--budget <sol>", "initial budget in SOL")
   .option("--max-fee <micro>", "priority fee cap (micro-lamports/CU)", (v) => parseInt(v, 10))
-  .action(() => {
-    console.log(chalk.hex("#FF7A29")("job create -- pending mainnet deploy"));
+  .action(async (opts: {
+    cron?: string;
+    accountState?: string;
+    priceFeed?: string;
+    slotPeriod?: number;
+    target?: string;
+    maxFee?: number;
+  }) => {
+    try {
+      const triggerType =
+        opts.cron !== undefined ? TRIGGER_TYPES.cron
+        : opts.accountState !== undefined ? TRIGGER_TYPES.account_state
+        : opts.priceFeed !== undefined ? TRIGGER_TYPES.price_threshold
+        : opts.slotPeriod !== undefined ? TRIGGER_TYPES.slot_epoch
+        : undefined;
+      if (triggerType === undefined) {
+        throw new Error("pick a trigger: --cron, --account-state, --price-feed, or --slot-period");
+      }
+      const body: Record<string, unknown> = {
+        trigger_type: triggerType,
+        cron_expression: opts.cron ?? null,
+        period_slots: opts.slotPeriod ?? null,
+        target_program: opts.target ?? null,
+      };
+      if (opts.maxFee !== undefined) body.max_priority_fee_micro_lamports = opts.maxFee;
+      const quote = await postJson("/quote", body);
+      console.log(orange(`register_job is live on ${DEVNET_PROGRAM_ID} (devnet)`));
+      console.log(
+        amber(
+          `estimated cost: ${quote.cost_per_execution_lamports} lamports/execution, ` +
+            `~${quote.expected_executions_per_day}/day`,
+        ),
+      );
+      console.log(
+        grey("submit with Vigyl.schedule() from the sdk -- see examples/hourly-crank.ts"),
+      );
+    } catch (err) {
+      fail(err);
+    }
   });
 
 job
@@ -96,7 +134,15 @@ job
 for (const name of ["pause", "resume", "fund", "cancel"]) {
   job
     .command(`${name} <job>`)
-    .action(() => console.log(chalk.hex("#C7CCD6")(`${name} -- pending mainnet deploy`)));
+    .description(`${name} a job you own (${name}_job instruction)`)
+    .action((jobPubkey: string) =>
+      console.log(
+        grey(
+          `${name}_job is live on ${DEVNET_PROGRAM_ID} (devnet) -- submit it for ` +
+            `${jobPubkey} via anchor with idl/vigyl.json`,
+        ),
+      ),
+    );
 }
 
 program
@@ -142,15 +188,39 @@ const keeper = program.command("keeper").description("bonded keeper commands");
 
 keeper
   .command("bond <amount>")
-  .action(() => console.log(chalk.hex("#FF7A29")("bond -- pending mainnet deploy")));
+  .description("post a keeper bond (bond_keeper instruction)")
+  .action((amount: string) =>
+    console.log(
+      orange(
+        `bond_keeper is live on ${DEVNET_PROGRAM_ID} (devnet) -- submit ${amount} ` +
+          "via anchor with idl/vigyl.json; the bond pda is seeded [\"keeper\", keeper]",
+      ),
+    ),
+  );
 
 keeper
   .command("unbond")
-  .action(() => console.log(chalk.hex("#F5A623")("unbond -- pending mainnet deploy")));
+  .description("request unbond (request_unbond instruction)")
+  .action(() =>
+    console.log(
+      amber(
+        `request_unbond is live on ${DEVNET_PROGRAM_ID} (devnet); it requires ` +
+          "active_jobs == 0 and starts the bond_unlock_seconds timer",
+      ),
+    ),
+  );
 
 keeper
   .command("withdraw")
-  .action(() => console.log(chalk.hex("#C7CCD6")("withdraw -- pending mainnet deploy")));
+  .description("withdraw an unlocked bond (withdraw_unbond instruction)")
+  .action(() =>
+    console.log(
+      grey(
+        `withdraw_unbond is live on ${DEVNET_PROGRAM_ID} (devnet) -- callable once ` +
+          "bond_unlock_seconds has elapsed after request_unbond",
+      ),
+    ),
+  );
 
 keeper
   .command("run")
@@ -159,7 +229,12 @@ keeper
   .option("--max-concurrent <n>", "max concurrent executions", (v) => parseInt(v, 10), 3)
   .option("--health-port <port>", "health check http port", (v) => parseInt(v, 10))
   .action(() => {
-    console.log(chalk.hex("#FF7A29")("keeper run -- daemon entry point"));
+    console.log(
+      grey(
+        "the daemon source is not part of this repo; docs/keeper-spec.md specifies " +
+          "the boot sequence, rotation, and failure paths it follows",
+      ),
+    );
   });
 
 program
