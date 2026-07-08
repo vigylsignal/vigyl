@@ -1,146 +1,2428 @@
 {
-  "address": "V1gy1KpR1RJt1n1eN3tw1RkPr1grM11111111111111",
+  "address": "HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o",
   "metadata": {
     "name": "vigyl",
     "version": "0.1.0",
     "spec": "0.1.0",
-    "description": "VIGYL keeper network on-chain state and instructions"
+    "description": "VIGYL Anchor program -- job registry, keeper bond, slash, execution proofs"
   },
   "instructions": [
-    { "name": "initialize_config", "accounts": [
-        { "name": "authority", "writable": true, "signer": true },
-        { "name": "config", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [99,111,110,102,105,103] }] } },
-        { "name": "system_program", "address": "11111111111111111111111111111111" }
-      ], "args": [{ "name": "params", "type": { "defined": { "name": "ConfigParams" } } }],
-      "discriminator": [46, 4, 92, 149, 224, 190, 71, 200]
-    },
-    { "name": "initialize_registry", "accounts": [
-        { "name": "authority", "writable": true, "signer": true },
-        { "name": "registry", "writable": true, "pda": { "seeds": [{ "kind": "const", "value": [114,101,103,105,115,116,114,121] }] } },
-        { "name": "system_program", "address": "11111111111111111111111111111111" }
-      ], "args": [],
-      "discriminator": [30, 202, 145, 156, 165, 62, 12, 68]
-    },
-    { "name": "register_job", "accounts": [
-        { "name": "owner", "writable": true, "signer": true },
-        { "name": "config" },
-        { "name": "registry", "writable": true },
-        { "name": "job", "writable": true }
-      ], "args": [
-        { "name": "trigger_type", "type": "u8" },
-        { "name": "trigger_data", "type": { "array": ["u8", 128] } },
-        { "name": "target_program", "type": "pubkey" },
-        { "name": "target_ix_data", "type": { "array": ["u8", 512] } },
-        { "name": "target_accounts_hash", "type": { "array": ["u8", 32] } },
-        { "name": "budget_lamports", "type": "u64" },
-        { "name": "max_priority_fee_micro_lamports", "type": "u64" }
+    {
+      "name": "bond_keeper",
+      "discriminator": [
+        167,
+        101,
+        132,
+        208,
+        178,
+        36,
+        89,
+        88
       ],
-      "discriminator": [193, 91, 44, 51, 30, 133, 240, 168]
-    },
-    { "name": "fund_job", "accounts": [
-        { "name": "owner", "writable": true, "signer": true },
-        { "name": "job", "writable": true }
-      ], "args": [{ "name": "additional_lamports", "type": "u64" }],
-      "discriminator": [8, 68, 244, 141, 227, 5, 145, 219]
-    },
-    { "name": "pause_job", "accounts": [
-        { "name": "owner", "signer": true },
-        { "name": "job", "writable": true }
-      ], "args": [],
-      "discriminator": [70, 40, 187, 145, 236, 190, 3, 24]
-    },
-    { "name": "resume_job", "accounts": [
-        { "name": "owner", "signer": true },
-        { "name": "job", "writable": true }
-      ], "args": [],
-      "discriminator": [220, 20, 194, 149, 34, 97, 197, 66]
-    },
-    { "name": "cancel_job", "accounts": [
-        { "name": "owner", "writable": true, "signer": true },
-        { "name": "job", "writable": true }
-      ], "args": [],
-      "discriminator": [232, 219, 223, 41, 219, 236, 220, 190]
-    },
-    { "name": "bond_keeper", "accounts": [
-        { "name": "keeper", "writable": true, "signer": true },
-        { "name": "keeper_bond", "writable": true }
-      ], "args": [{ "name": "amount", "type": "u64" }],
-      "discriminator": [156, 68, 32, 43, 122, 244, 231, 62]
-    },
-    { "name": "request_unbond", "accounts": [
-        { "name": "keeper", "signer": true },
-        { "name": "keeper_bond", "writable": true }
-      ], "args": [],
-      "discriminator": [45, 3, 200, 199, 92, 205, 43, 118]
-    },
-    { "name": "withdraw_unbond", "accounts": [
-        { "name": "keeper", "writable": true, "signer": true },
-        { "name": "keeper_bond", "writable": true }
-      ], "args": [],
-      "discriminator": [64, 176, 173, 90, 68, 218, 22, 232]
-    },
-    { "name": "claim_execution", "accounts": [
-        { "name": "keeper", "signer": true },
-        { "name": "job", "writable": true },
-        { "name": "keeper_bond", "writable": true }
-      ], "args": [{ "name": "expected_run_slot", "type": "u64" }],
-      "discriminator": [193, 55, 62, 145, 128, 245, 116, 47]
-    },
-    { "name": "submit_proof", "accounts": [
-        { "name": "keeper", "writable": true, "signer": true },
-        { "name": "job", "writable": true },
-        { "name": "keeper_bond", "writable": true },
-        { "name": "proof", "writable": true }
-      ], "args": [
-        { "name": "execution_index", "type": "u64" },
-        { "name": "tx_signature", "type": { "array": ["u8", 64] } },
-        { "name": "success", "type": "bool" },
-        { "name": "priority_fee_used", "type": "u64" }
+      "accounts": [
+        {
+          "name": "keeper",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "keeper_bond",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  107,
+                  101,
+                  101,
+                  112,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "keeper"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vigyl_mint"
+        },
+        {
+          "name": "keeper_vigyl_account",
+          "writable": true
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault_authority"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "vigyl_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
       ],
-      "discriminator": [64, 194, 45, 26, 216, 33, 90, 175]
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     },
-    { "name": "slash_keeper", "accounts": [
-        { "name": "caller", "writable": true, "signer": true },
-        { "name": "job", "writable": true },
-        { "name": "keeper_bond", "writable": true },
-        { "name": "config" }
-      ], "args": [],
-      "discriminator": [95, 149, 74, 116, 175, 39, 32, 12]
+    {
+      "name": "cancel_job",
+      "discriminator": [
+        126,
+        241,
+        155,
+        241,
+        50,
+        236,
+        83,
+        118
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "job"
+          ]
+        },
+        {
+          "name": "job",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "job.job_index",
+                "account": "Job"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_execution",
+      "discriminator": [
+        59,
+        174,
+        137,
+        85,
+        3,
+        70,
+        61,
+        84
+      ],
+      "accounts": [
+        {
+          "name": "keeper",
+          "signer": true,
+          "relations": [
+            "keeper_bond"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "job",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "job.owner",
+                "account": "Job"
+              },
+              {
+                "kind": "account",
+                "path": "job.job_index",
+                "account": "Job"
+              }
+            ]
+          }
+        },
+        {
+          "name": "keeper_bond",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  107,
+                  101,
+                  101,
+                  112,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "keeper"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "expected_run_slot",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "fund_job",
+      "discriminator": [
+        244,
+        198,
+        4,
+        15,
+        41,
+        178,
+        169,
+        187
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "job"
+          ]
+        },
+        {
+          "name": "job",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "job.job_index",
+                "account": "Job"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "additional_lamports",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "initialize_config",
+      "discriminator": [
+        208,
+        127,
+        21,
+        1,
+        194,
+        190,
+        196,
+        70
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "treasury"
+        },
+        {
+          "name": "vigyl_mint"
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault_authority"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "vigyl_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "ConfigParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize_registry",
+      "discriminator": [
+        189,
+        181,
+        20,
+        17,
+        174,
+        57,
+        249,
+        59
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "pause_job",
+      "discriminator": [
+        109,
+        246,
+        255,
+        44,
+        200,
+        93,
+        219,
+        209
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "job"
+          ]
+        },
+        {
+          "name": "job",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "job.job_index",
+                "account": "Job"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_job",
+      "discriminator": [
+        87,
+        213,
+        177,
+        255,
+        131,
+        17,
+        178,
+        45
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "job",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "registry.total_jobs",
+                "account": "JobRegistry"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vigyl_mint",
+          "writable": true
+        },
+        {
+          "name": "owner_vigyl_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "trigger_type",
+          "type": "u8"
+        },
+        {
+          "name": "trigger_data",
+          "type": {
+            "array": [
+              "u8",
+              128
+            ]
+          }
+        },
+        {
+          "name": "target_program",
+          "type": "pubkey"
+        },
+        {
+          "name": "target_ix_data",
+          "type": {
+            "array": [
+              "u8",
+              512
+            ]
+          }
+        },
+        {
+          "name": "target_accounts_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "budget_lamports",
+          "type": "u64"
+        },
+        {
+          "name": "max_priority_fee_micro_lamports",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "request_unbond",
+      "discriminator": [
+        11,
+        35,
+        179,
+        103,
+        226,
+        159,
+        251,
+        63
+      ],
+      "accounts": [
+        {
+          "name": "keeper",
+          "signer": true,
+          "relations": [
+            "keeper_bond"
+          ]
+        },
+        {
+          "name": "keeper_bond",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  107,
+                  101,
+                  101,
+                  112,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "keeper"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "resume_job",
+      "discriminator": [
+        227,
+        121,
+        122,
+        86,
+        162,
+        46,
+        31,
+        39
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "job"
+          ]
+        },
+        {
+          "name": "job",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "account",
+                "path": "job.job_index",
+                "account": "Job"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "slash_keeper",
+      "discriminator": [
+        203,
+        194,
+        54,
+        26,
+        207,
+        45,
+        134,
+        40
+      ],
+      "accounts": [
+        {
+          "name": "cranker",
+          "docs": [
+            "Anyone may crank a slash once the timeout has expired."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "job",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "job.owner",
+                "account": "Job"
+              },
+              {
+                "kind": "account",
+                "path": "job.job_index",
+                "account": "Job"
+              }
+            ]
+          }
+        },
+        {
+          "name": "keeper_bond",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  107,
+                  101,
+                  101,
+                  112,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "job.assigned_keeper",
+                "account": "Job"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vigyl_mint",
+          "writable": true
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault_authority"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "vigyl_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "job_owner"
+        },
+        {
+          "name": "owner_vigyl_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "submit_proof",
+      "discriminator": [
+        54,
+        241,
+        46,
+        84,
+        4,
+        212,
+        46,
+        94
+      ],
+      "accounts": [
+        {
+          "name": "keeper",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "keeper_bond"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "job",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  106,
+                  111,
+                  98
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "job.owner",
+                "account": "Job"
+              },
+              {
+                "kind": "account",
+                "path": "job.job_index",
+                "account": "Job"
+              }
+            ]
+          }
+        },
+        {
+          "name": "keeper_bond",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  107,
+                  101,
+                  101,
+                  112,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "keeper"
+              }
+            ]
+          }
+        },
+        {
+          "name": "execution_proof",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  111,
+                  102
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "job"
+              },
+              {
+                "kind": "arg",
+                "path": "execution_index"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "execution_index",
+          "type": "u64"
+        },
+        {
+          "name": "tx_signature",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        },
+        {
+          "name": "success",
+          "type": "bool"
+        },
+        {
+          "name": "priority_fee_used",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "update_config",
+      "discriminator": [
+        29,
+        158,
+        252,
+        191,
+        10,
+        83,
+        219,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "ConfigParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdraw_unbond",
+      "discriminator": [
+        216,
+        203,
+        36,
+        203,
+        81,
+        77,
+        98,
+        221
+      ],
+      "accounts": [
+        {
+          "name": "keeper",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "keeper_bond"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "registry",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "keeper_bond",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  107,
+                  101,
+                  101,
+                  112,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "keeper"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vigyl_mint"
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault_authority"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "vigyl_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "keeper_vigyl_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
-    { "name": "Config", "discriminator": [155, 12, 170, 224, 30, 250, 204, 130] },
-    { "name": "JobRegistry", "discriminator": [59, 100, 46, 231, 118, 21, 209, 83] },
-    { "name": "Job", "discriminator": [75, 124, 80, 74, 175, 79, 40, 55] },
-    { "name": "KeeperBond", "discriminator": [116, 175, 202, 20, 129, 89, 187, 41] },
-    { "name": "ExecutionProof", "discriminator": [136, 216, 154, 82, 200, 43, 210, 47] }
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "ExecutionProof",
+      "discriminator": [
+        229,
+        14,
+        10,
+        20,
+        155,
+        240,
+        212,
+        90
+      ]
+    },
+    {
+      "name": "Job",
+      "discriminator": [
+        75,
+        124,
+        80,
+        203,
+        161,
+        180,
+        202,
+        80
+      ]
+    },
+    {
+      "name": "JobRegistry",
+      "discriminator": [
+        229,
+        237,
+        229,
+        208,
+        90,
+        167,
+        84,
+        23
+      ]
+    },
+    {
+      "name": "KeeperBond",
+      "discriminator": [
+        147,
+        25,
+        133,
+        190,
+        97,
+        230,
+        22,
+        101
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "ConfigInitialized",
+      "discriminator": [
+        181,
+        49,
+        200,
+        156,
+        19,
+        167,
+        178,
+        91
+      ]
+    },
+    {
+      "name": "ConfigUpdated",
+      "discriminator": [
+        40,
+        241,
+        230,
+        122,
+        11,
+        19,
+        198,
+        194
+      ]
+    },
+    {
+      "name": "ExecutionClaimed",
+      "discriminator": [
+        224,
+        253,
+        210,
+        109,
+        156,
+        72,
+        144,
+        198
+      ]
+    },
+    {
+      "name": "ExecutionSubmitted",
+      "discriminator": [
+        112,
+        65,
+        40,
+        122,
+        211,
+        219,
+        108,
+        186
+      ]
+    },
+    {
+      "name": "JobCancelled",
+      "discriminator": [
+        203,
+        84,
+        143,
+        130,
+        48,
+        134,
+        74,
+        191
+      ]
+    },
+    {
+      "name": "JobFunded",
+      "discriminator": [
+        109,
+        177,
+        206,
+        113,
+        255,
+        142,
+        11,
+        19
+      ]
+    },
+    {
+      "name": "JobPaused",
+      "discriminator": [
+        45,
+        67,
+        69,
+        125,
+        70,
+        122,
+        41,
+        221
+      ]
+    },
+    {
+      "name": "JobRegistered",
+      "discriminator": [
+        155,
+        197,
+        214,
+        211,
+        47,
+        179,
+        242,
+        174
+      ]
+    },
+    {
+      "name": "JobResumed",
+      "discriminator": [
+        40,
+        66,
+        0,
+        29,
+        14,
+        172,
+        144,
+        185
+      ]
+    },
+    {
+      "name": "KeeperBonded",
+      "discriminator": [
+        253,
+        175,
+        66,
+        79,
+        226,
+        84,
+        206,
+        204
+      ]
+    },
+    {
+      "name": "KeeperSlashed",
+      "discriminator": [
+        40,
+        75,
+        247,
+        92,
+        165,
+        86,
+        81,
+        28
+      ]
+    },
+    {
+      "name": "KeeperUnbondCompleted",
+      "discriminator": [
+        157,
+        252,
+        91,
+        97,
+        154,
+        180,
+        95,
+        39
+      ]
+    },
+    {
+      "name": "KeeperUnbondRequested",
+      "discriminator": [
+        247,
+        221,
+        55,
+        45,
+        157,
+        215,
+        148,
+        5
+      ]
+    }
   ],
   "errors": [
-    { "code": 6000, "name": "Overflow", "msg": "integer overflow" },
-    { "code": 6001, "name": "Underflow", "msg": "integer underflow" },
-    { "code": 6002, "name": "Unauthorized", "msg": "unauthorized" },
-    { "code": 6003, "name": "JobPaused", "msg": "job is paused" },
-    { "code": 6004, "name": "JobBudgetInsufficient", "msg": "job has insufficient budget" },
-    { "code": 6005, "name": "JobNotDue", "msg": "job not due yet" },
-    { "code": 6006, "name": "KeeperUnderBonded", "msg": "keeper is below the minimum bond" },
-    { "code": 6007, "name": "KeeperHasActiveJobs", "msg": "keeper still has active jobs" },
-    { "code": 6008, "name": "UnbondNotReady", "msg": "unbond delay not reached" },
-    { "code": 6009, "name": "AlreadyAssigned", "msg": "job is already assigned" },
-    { "code": 6010, "name": "NotAssignedKeeper", "msg": "signer is not the assigned keeper" },
-    { "code": 6011, "name": "InvalidTriggerType", "msg": "invalid trigger type" },
-    { "code": 6012, "name": "InvalidTriggerData", "msg": "invalid trigger data" },
-    { "code": 6013, "name": "PriorityFeeExceedsCap", "msg": "priority fee exceeds job cap" },
-    { "code": 6014, "name": "SlashNotEligible", "msg": "keeper is not slashable yet" }
+    {
+      "code": 6000,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6001,
+      "name": "Underflow",
+      "msg": "Arithmetic underflow"
+    },
+    {
+      "code": 6002,
+      "name": "Unauthorized",
+      "msg": "Signer is not authorized for this action"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidAuthority",
+      "msg": "Provided authority does not match config authority"
+    },
+    {
+      "code": 6004,
+      "name": "JobPaused",
+      "msg": "Job is paused"
+    },
+    {
+      "code": 6005,
+      "name": "JobBudgetInsufficient",
+      "msg": "Job budget is insufficient to cover this execution"
+    },
+    {
+      "code": 6006,
+      "name": "JobNotDue",
+      "msg": "Job is not yet due for execution"
+    },
+    {
+      "code": 6007,
+      "name": "KeeperUnderBonded",
+      "msg": "Keeper bond is below the minimum required"
+    },
+    {
+      "code": 6008,
+      "name": "KeeperHasActiveJobs",
+      "msg": "Keeper still has active jobs assigned"
+    },
+    {
+      "code": 6009,
+      "name": "UnbondNotReady",
+      "msg": "Unbond delay has not elapsed yet"
+    },
+    {
+      "code": 6010,
+      "name": "AlreadyAssigned",
+      "msg": "Job already has an assigned keeper"
+    },
+    {
+      "code": 6011,
+      "name": "NotAssignedKeeper",
+      "msg": "Signer is not the assigned keeper for this job"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidTriggerType",
+      "msg": "Trigger type is invalid (must be 0..=3)"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidTriggerData",
+      "msg": "Trigger data failed validation"
+    },
+    {
+      "code": 6014,
+      "name": "PriorityFeeExceedsCap",
+      "msg": "Requested priority fee exceeds the job cap"
+    },
+    {
+      "code": 6015,
+      "name": "SlashNotEligible",
+      "msg": "Slash conditions are not met (assigned + timeout expired)"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidConfig",
+      "msg": "Config parameters are invalid (bps out of range)"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidExecutionIndex",
+      "msg": "Execution index is not the next expected index"
+    },
+    {
+      "code": 6018,
+      "name": "KeeperUnbonding",
+      "msg": "Keeper is currently unbonding"
+    },
+    {
+      "code": 6019,
+      "name": "NoUnbondRequest",
+      "msg": "No unbond request is active"
+    }
   ],
   "types": [
-    { "name": "ConfigParams", "type": { "kind": "struct", "fields": [
-      { "name": "min_keeper_bond", "type": "u64" },
-      { "name": "execution_fee_bps", "type": "u16" },
-      { "name": "slash_burn_bps", "type": "u16" },
-      { "name": "slash_owner_bps", "type": "u16" },
-      { "name": "job_registration_fee", "type": "u64" },
-      { "name": "bond_unlock_seconds", "type": "i64" },
-      { "name": "execution_timeout_slots", "type": "u64" }
-    ]}}
+    {
+      "name": "Config",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Admin -- may update parameters via `update_config`."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "docs": [
+              "Fee-collecting account (SOL execution fees flow here)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "vigyl_mint",
+            "docs": [
+              "$VIGYL SPL mint."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "min_keeper_bond",
+            "docs": [
+              "Minimum entry bond, in base units of $VIGYL."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "execution_fee_bps",
+            "docs": [
+              "Execution fee, basis points (e.g. 30 = 0.30%)."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "slash_burn_bps",
+            "docs": [
+              "Slash burn share, basis points (e.g. 5000 = 50%)."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "slash_owner_bps",
+            "docs": [
+              "Slash owner-reward share, basis points (e.g. 5000 = 50%)."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "job_registration_fee",
+            "docs": [
+              "Job registration fee, $VIGYL (100% burned on register)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bond_unlock_seconds",
+            "docs": [
+              "Unbond delay in seconds (Keep3r references 3 days)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "execution_timeout_slots",
+            "docs": [
+              "Slots after assignment before an idle keeper becomes slashable."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigInitialized",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "vigyl_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "min_keeper_bond",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigParams",
+      "docs": [
+        "Mutable configuration parameters. Shared by `initialize_config` and",
+        "`update_config`. Treasury / mint are set once (via accounts) at init and are",
+        "immutable thereafter so the vault cannot be redirected."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "min_keeper_bond",
+            "type": "u64"
+          },
+          {
+            "name": "execution_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "slash_burn_bps",
+            "type": "u16"
+          },
+          {
+            "name": "slash_owner_bps",
+            "type": "u16"
+          },
+          {
+            "name": "job_registration_fee",
+            "type": "u64"
+          },
+          {
+            "name": "bond_unlock_seconds",
+            "type": "i64"
+          },
+          {
+            "name": "execution_timeout_slots",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "min_keeper_bond",
+            "type": "u64"
+          },
+          {
+            "name": "execution_fee_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ExecutionClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "job",
+            "type": "pubkey"
+          },
+          {
+            "name": "keeper",
+            "type": "pubkey"
+          },
+          {
+            "name": "assigned_at_slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ExecutionProof",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "job",
+            "type": "pubkey"
+          },
+          {
+            "name": "keeper",
+            "type": "pubkey"
+          },
+          {
+            "name": "execution_index",
+            "type": "u64"
+          },
+          {
+            "name": "submitted_at_slot",
+            "type": "u64"
+          },
+          {
+            "name": "assigned_at_slot",
+            "type": "u64"
+          },
+          {
+            "name": "latency_slots",
+            "docs": [
+              "submitted_at_slot - assigned_at_slot."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "priority_fee_used",
+            "type": "u64"
+          },
+          {
+            "name": "tx_signature",
+            "docs": [
+              "Signature of the real execution transaction."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                64
+              ]
+            }
+          },
+          {
+            "name": "success",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ExecutionSubmitted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "job",
+            "type": "pubkey"
+          },
+          {
+            "name": "keeper",
+            "type": "pubkey"
+          },
+          {
+            "name": "execution_index",
+            "type": "u64"
+          },
+          {
+            "name": "success",
+            "type": "bool"
+          },
+          {
+            "name": "latency_slots",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Job",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "job_index",
+            "type": "u64"
+          },
+          {
+            "name": "trigger_type",
+            "docs": [
+              "0=Cron, 1=AccountState, 2=PriceThreshold, 3=SlotEpoch."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "trigger_data",
+            "docs": [
+              "Serialized trigger parameters (fixed 128-byte layout, see trigger.rs)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          },
+          {
+            "name": "target_program",
+            "docs": [
+              "Program invoked on execution."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "target_ix_data",
+            "docs": [
+              "Prepaid CPI instruction data."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                512
+              ]
+            }
+          },
+          {
+            "name": "target_accounts_hash",
+            "docs": [
+              "Hash of the account set the keeper must pass (integrity check)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "budget_lamports",
+            "docs": [
+              "Remaining execution budget, paid in SOL (lamports)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "max_priority_fee_micro_lamports",
+            "docs": [
+              "Executor priority-fee ceiling (micro-lamports / CU)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "execution_count",
+            "docs": [
+              "Cumulative successful executions."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "failure_count",
+            "type": "u64"
+          },
+          {
+            "name": "next_run_slot",
+            "docs": [
+              "Earliest slot the job is eligible again (advanced on submit_proof)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "assigned_keeper",
+            "docs": [
+              "Currently assigned keeper. `Pubkey::default()` == unassigned."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "assigned_at_slot",
+            "type": "u64"
+          },
+          {
+            "name": "is_paused",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JobCancelled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "job",
+            "type": "pubkey"
+          },
+          {
+            "name": "refunded_lamports",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JobFunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "job",
+            "type": "pubkey"
+          },
+          {
+            "name": "additional_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "new_budget",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JobPaused",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "job",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JobRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "job",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "trigger_type",
+            "type": "u8"
+          },
+          {
+            "name": "budget_lamports",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JobRegistry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "total_jobs",
+            "docs": [
+              "Registration counter, monotonic (also used as the next `job_index`)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_keepers",
+            "type": "u32"
+          },
+          {
+            "name": "total_executions",
+            "type": "u64"
+          },
+          {
+            "name": "total_slashes",
+            "type": "u32"
+          },
+          {
+            "name": "total_bonded",
+            "docs": [
+              "Current total bonded $VIGYL across all keepers."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "JobResumed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "job",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "KeeperBond",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "keeper",
+            "type": "pubkey"
+          },
+          {
+            "name": "bond_amount",
+            "type": "u64"
+          },
+          {
+            "name": "bonded_at_slot",
+            "type": "u64"
+          },
+          {
+            "name": "active_jobs",
+            "docs": [
+              "Number of jobs currently assigned to this keeper."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "total_executions",
+            "type": "u64"
+          },
+          {
+            "name": "total_slashes",
+            "type": "u32"
+          },
+          {
+            "name": "is_unbonding",
+            "type": "bool"
+          },
+          {
+            "name": "unbond_request_slot",
+            "docs": [
+              "Slot the unbond was requested (0 == no request)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "KeeperBonded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "keeper",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_bond",
+            "type": "u64"
+          },
+          {
+            "name": "total_bonded",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "KeeperSlashed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "keeper",
+            "type": "pubkey"
+          },
+          {
+            "name": "job",
+            "type": "pubkey"
+          },
+          {
+            "name": "burned",
+            "type": "u64"
+          },
+          {
+            "name": "owner_reward",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "KeeperUnbondCompleted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "keeper",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "KeeperUnbondRequested",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "keeper",
+            "type": "pubkey"
+          }
+        ]
+      }
+    }
   ]
 }
