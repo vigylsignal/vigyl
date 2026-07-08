@@ -143,8 +143,8 @@ import { Vigyl } from "@vigyl/sdk";
 import { Connection, PublicKey } from "@solana/web3.js";
 
 const vigyl = new Vigyl({
-  connection: new Connection("https://api.devnet.solana.com"),
-  programId: new PublicKey("HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o"),
+  connection: new Connection("https://api.mainnet.solana.com"),
+  programId: new PublicKey("ErbqsQTo28e4vxCb8Jfzj4UERNrhFmJD7XmN4vERkQVK"),
   wallet: myKeypair,
 });
 
@@ -198,15 +198,15 @@ examples/          runnable schedule examples (hourly crank, vault rebalance, pr
 
 ## Status
 
-The Anchor program is live on **devnet**. `initialize` has been run, so the config and registry accounts exist and `register_job` / `bond_keeper` can be exercised against the real program today.
+The Anchor program is live on **mainnet**. `initialize` has been run, so the config and registry accounts exist and `register_job` / `bond_keeper` can be exercised against the real program today.
 
-| | Address (devnet) |
+| | Address (mainnet) |
 |---|---|
-| Program | [`HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o`](https://explorer.solana.com/address/HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o?cluster=devnet) |
-| Config PDA | [`AmuWaJAeDm49oXshyLPrCiRjgdePqGQyLSj9x5b85GiB`](https://explorer.solana.com/address/AmuWaJAeDm49oXshyLPrCiRjgdePqGQyLSj9x5b85GiB?cluster=devnet) |
-| Job registry PDA | [`6pXMVP3uoB3Fe5fnGVCQSqQy5Yzdk6tKWtCytAko5ywd`](https://explorer.solana.com/address/6pXMVP3uoB3Fe5fnGVCQSqQy5Yzdk6tKWtCytAko5ywd?cluster=devnet) |
+| Program | [`ErbqsQTo28e4vxCb8Jfzj4UERNrhFmJD7XmN4vERkQVK`](https://explorer.solana.com/address/ErbqsQTo28e4vxCb8Jfzj4UERNrhFmJD7XmN4vERkQVK) |
+| Config PDA | [`AmuWaJAeDm49oXshyLPrCiRjgdePqGQyLSj9x5b85GiB`](https://explorer.solana.com/address/AmuWaJAeDm49oXshyLPrCiRjgdePqGQyLSj9x5b85GiB) |
+| Job registry PDA | [`6pXMVP3uoB3Fe5fnGVCQSqQy5Yzdk6tKWtCytAko5ywd`](https://explorer.solana.com/address/6pXMVP3uoB3Fe5fnGVCQSqQy5Yzdk6tKWtCytAko5ywd) |
 
-[idl/vigyl.json](idl/vigyl.json) is the IDL from the deployed build. Mainnet deployment stays gated on the security notes in [docs/security.md](docs/security.md); until then, point the SDK and CLI at devnet.
+[idl/vigyl.json](idl/vigyl.json) is the IDL from the deployed build. Mainnet deployment stays gated on the security notes in [docs/security.md](docs/security.md); until then, point the SDK and CLI at mainnet.
 
 ## License
 
