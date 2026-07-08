@@ -131,9 +131,11 @@ The rotation is deterministic per slot, so a losing keeper immediately backs off
 
 ## Getting started
 
+The SDK is not on the npm registry yet -- build it from this repo:
+
 ```bash
-# depend on the ts sdk from your protocol
-npm install @vigyl/sdk @solana/web3.js @coral-xyz/anchor
+git clone https://github.com/vigylsignal/vigyl
+cd vigyl/ts-sdk && npm ci && npm run build   # then `npm link` or a file: dependency
 ```
 
 ```typescript
@@ -141,8 +143,8 @@ import { Vigyl } from "@vigyl/sdk";
 import { Connection, PublicKey } from "@solana/web3.js";
 
 const vigyl = new Vigyl({
-  connection: new Connection(process.env.RPC_URL!),
-  programId: new PublicKey(process.env.VIGYL_PROGRAM_ID!),
+  connection: new Connection("https://api.devnet.solana.com"),
+  programId: new PublicKey("HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o"),
   wallet: myKeypair,
 });
 
