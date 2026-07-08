@@ -4,8 +4,10 @@ import { readFileSync } from "node:fs";
 
 // Fire a liquidation helper when SOL/USD crosses $200 from below.
 async function main() {
-  const rpcUrl = process.env.RPC_URL ?? "https://api.mainnet-beta.solana.com";
-  const programId = new PublicKey(process.env.VIGYL_PROGRAM_ID!);
+  const rpcUrl = process.env.RPC_URL ?? "https://api.devnet.solana.com";
+  const programId = new PublicKey(
+    process.env.VIGYL_PROGRAM_ID ?? "HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o",
+  );
   const wallet = Keypair.fromSecretKey(
     Uint8Array.from(JSON.parse(readFileSync(process.env.KEYPAIR!, "utf8"))),
   );
