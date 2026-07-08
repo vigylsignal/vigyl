@@ -196,7 +196,15 @@ examples/          runnable schedule examples (hourly crank, vault rebalance, pr
 
 ## Status
 
-The Anchor program targets Solana mainnet with `anchor deploy --provider.cluster mainnet`; deployment is gated on program keypair provisioning by the maintainer and is not live yet. The `src/` crate, TypeScript SDK, and CLI are locally testable today. See [docs/security.md](docs/security.md) for the pre-deploy checklist.
+The Anchor program is live on **devnet**. `initialize` has been run, so the config and registry accounts exist and `register_job` / `bond_keeper` can be exercised against the real program today.
+
+| | Address (devnet) |
+|---|---|
+| Program | [`HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o`](https://explorer.solana.com/address/HH7mrDz4EUmPaZy8knZxB1SaPL6pvMiZm219YW99WU9o?cluster=devnet) |
+| Config PDA | [`AmuWaJAeDm49oXshyLPrCiRjgdePqGQyLSj9x5b85GiB`](https://explorer.solana.com/address/AmuWaJAeDm49oXshyLPrCiRjgdePqGQyLSj9x5b85GiB?cluster=devnet) |
+| Job registry PDA | [`6pXMVP3uoB3Fe5fnGVCQSqQy5Yzdk6tKWtCytAko5ywd`](https://explorer.solana.com/address/6pXMVP3uoB3Fe5fnGVCQSqQy5Yzdk6tKWtCytAko5ywd?cluster=devnet) |
+
+[idl/vigyl.json](idl/vigyl.json) is the IDL from the deployed build. Mainnet deployment stays gated on the security notes in [docs/security.md](docs/security.md); until then, point the SDK and CLI at devnet.
 
 ## License
 
