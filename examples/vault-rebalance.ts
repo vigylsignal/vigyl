@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 async function main() {
   const rpcUrl = process.env.RPC_URL ?? "https://api.mainnet-beta.solana.com";
   const programId = new PublicKey(
-    process.env.VIGYL_PROGRAM_ID ?? "ErbqsQTo28e4vxCb8Jfzj4UERNrhFmJD7XmN4vERkQVK",
+    process.env.VIGYL_PROGRAM_ID ?? "64RwVTiRAtkVcjFTNaLorFbqRy2ifmP3kWmjJqgszrrh",
   );
   const wallet = Keypair.fromSecretKey(
     Uint8Array.from(JSON.parse(readFileSync(process.env.KEYPAIR!, "utf8"))),

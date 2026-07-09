@@ -144,7 +144,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 
 const vigyl = new Vigyl({
   connection: new Connection("https://api.mainnet.solana.com"),
-  programId: new PublicKey("ErbqsQTo28e4vxCb8Jfzj4UERNrhFmJD7XmN4vERkQVK"),
+  programId: new PublicKey("64RwVTiRAtkVcjFTNaLorFbqRy2ifmP3kWmjJqgszrrh"),
   wallet: myKeypair,
 });
 
@@ -202,7 +202,7 @@ The Anchor program is live on **mainnet**. `initialize` has been run, so the con
 
 | | Address (mainnet) |
 |---|---|
-| Program | [`ErbqsQTo28e4vxCb8Jfzj4UERNrhFmJD7XmN4vERkQVK`](https://explorer.solana.com/address/ErbqsQTo28e4vxCb8Jfzj4UERNrhFmJD7XmN4vERkQVK) |
+| Program | [`64RwVTiRAtkVcjFTNaLorFbqRy2ifmP3kWmjJqgszrrh`](https://explorer.solana.com/address/64RwVTiRAtkVcjFTNaLorFbqRy2ifmP3kWmjJqgszrrh) |
 | Config PDA | [`AmuWaJAeDm49oXshyLPrCiRjgdePqGQyLSj9x5b85GiB`](https://explorer.solana.com/address/AmuWaJAeDm49oXshyLPrCiRjgdePqGQyLSj9x5b85GiB) |
 | Job registry PDA | [`6pXMVP3uoB3Fe5fnGVCQSqQy5Yzdk6tKWtCytAko5ywd`](https://explorer.solana.com/address/6pXMVP3uoB3Fe5fnGVCQSqQy5Yzdk6tKWtCytAko5ywd) |
 

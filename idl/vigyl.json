@@ -1,5 +1,5 @@
 {
-  "address": "ErbqsQTo28e4vxCb8Jfzj4UERNrhFmJD7XmN4vERkQVK",
+  "address": "64RwVTiRAtkVcjFTNaLorFbqRy2ifmP3kWmjJqgszrrh",
   "metadata": {
     "name": "vigyl",
     "version": "0.1.0",
@@ -1278,6 +1278,137 @@
       ]
     },
     {
+      "name": "update_mint",
+      "discriminator": [
+        212,
+        203,
+        57,
+        78,
+        75,
+        245,
+        222,
+        5
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_mint"
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_vault_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "vault_authority"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "new_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "withdraw_unbond",
       "discriminator": [
         216,
@@ -1684,6 +1815,19 @@
         148,
         5
       ]
+    },
+    {
+      "name": "MintUpdated",
+      "discriminator": [
+        146,
+        143,
+        171,
+        103,
+        70,
+        46,
+        163,
+        55
+      ]
     }
   ],
   "errors": [
@@ -1786,6 +1930,11 @@
       "code": 6019,
       "name": "NoUnbondRequest",
       "msg": "No unbond request is active"
+    },
+    {
+      "code": 6020,
+      "name": "MintUnchanged",
+      "msg": "Mint is already set to this value"
     }
   ],
   "types": [
@@ -2419,6 +2568,26 @@
         "fields": [
           {
             "name": "keeper",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_mint",
             "type": "pubkey"
           }
         ]
